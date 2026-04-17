@@ -14,11 +14,14 @@ import ProfileScreen from './src/screens/ProfileScreen';
 import VendorScheduleScreen from './src/screens/VendorScheduleScreen';
 import EditContactScreen from './src/screens/EditContactScreen';
 import EditBusinessScreen from './src/screens/EditBusinessScreen';
+import VendorDetailStoreScreen from './src/screens/VendorDetailsStoreScreen';
+import ProductDetailScreen from './src/screens/ProductDetailScreen';
 import { loadSession, saveSession, clearSession } from './src/services/sessionStorage';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const RootStack = createNativeStackNavigator();
+const HomeStack = createNativeStackNavigator();
 
 const CustomTabButton = ({ children, onPress }) => (
   <TouchableOpacity
@@ -61,6 +64,30 @@ function LoginStack({ onLoginSuccess }) {
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
+  );
+}
+
+function HomeStackScreen() {
+  return (
+    <HomeStack.Navigator>
+      <HomeStack.Screen 
+        name="Home" 
+        component={HomeScreen} 
+        options={{ headerShown: false }}
+      />
+
+      <HomeStack.Screen 
+        name="VendorDetailStore" 
+        component={VendorDetailStoreScreen}
+        options={{ headerShown: false }}
+      />
+
+      <HomeStack.Screen 
+        name="ProductDetail" 
+        component={ProductDetailScreen}
+        options={{ headerShown: false }}
+      />
+    </HomeStack.Navigator>
   );
 }
 
@@ -112,7 +139,7 @@ function MainTabs({ onLogout, user }) {
           ),
         }}
       >
-        {() => <HomeScreen />}
+        {() => <HomeStackScreen />}
       </Tab.Screen>
       
       <Tab.Screen 

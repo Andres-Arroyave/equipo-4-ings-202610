@@ -11,38 +11,19 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import ScreenLayout from '../Components/ScreenLayout';
 
-const CATEGORIES = [
-  { id: 1, name: 'BURGERS', icon: 'fast-food', bg: '#FDE8E8', iconColor: '#C0392B' },
-  { id: 2, name: 'PIZZAS', icon: 'pizza', bg: '#FEF6D8', iconColor: '#F0A500' },
-  { id: 3, name: 'PANES', icon: 'cafe', bg: '#FDE8E8', iconColor: '#C0392B' },
-  { id: 4, name: 'POSTRES', icon: 'ice-cream', bg: '#FEF6D8', iconColor: '#F0A500' },
-  { id: 5, name: 'CAFÉ', icon: 'cafe', bg: '#F8C8C8', iconColor: '#C0392B', active: true },
-  { id: 6, name: 'SALUDABLE', icon: 'leaf', bg: '#FEF6D8', iconColor: '#F0A500' },
-];
+const [vendedores, setVendedores] = useState([]);
 
-const VENDORS = [
-  {
-    id: 1,
-    name: 'Don Julio',
-    category: 'Parrilla',
-    schedule: '12:00 a 23:00',
-    image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200&h=200&fit=crop',
-  },
-  {
-    id: 2,
-    name: 'La Mezzetta',
-    category: 'Pizza',
-    schedule: '11:00 a 00:00',
-    image: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=200&h=200&fit=crop',
-  },
-  {
-    id: 3,
-    name: 'Sarkis',
-    category: 'Armenia',
-    schedule: '12:00 a 15:00',
-    image: 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=200&h=200&fit=crop',
-  },
-];
+useEffect(() => {
+  const fetchVendedores = async () => {
+    try {
+      const data = await getVendedores();
+      setVendedores(data);
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+  fetchVendedores();
+}, []);
 
 const VendorCard = ({ vendor, onPress }) => (
   <TouchableOpacity style={styles.vendorCard} onPress={onPress}>
@@ -51,9 +32,9 @@ const VendorCard = ({ vendor, onPress }) => (
       style={styles.vendorImage}
     />
     <View style={styles.vendorInfo}>
-      <Text style={styles.vendorName}>{vendor.name}</Text>
+      <Text style={styles.vendorName}>{vendor.nombreNegocio}</Text>
       <Text style={styles.vendorDetails}>
-        {vendor.category} • {vendor.schedule}
+        {vendor.nombreCategoria} • {vendor.schedule}
       </Text>
     </View>
     <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
@@ -113,11 +94,11 @@ const HomeScreen = ({ navigation }) => {
           </View>
 
           <View style={styles.vendorList}>
-            {VENDORS.map((vendor) => (
+            {vendedores.map((vendor) => (
               <VendorCard
-                key={vendor.id}
+                key={vendor.idVendedor}
                 vendor={vendor}
-                onPress={() => navigation.navigate('VendorDetails', { vendor })}
+                onPress={() => navigation.navigate('VendorDetailStore', { vendor })}
               />
             ))}
           </View>

@@ -131,7 +131,11 @@ const EditBusinessScreen = ({ user }) => {
           <TextInput
             style={[styles.input, styles.textArea]}
             value={form.descripcionNeg}
-            onChangeText={(val) => setForm({ ...form, descripcionNeg: val })}
+            onChangeText={(val) => {
+            if (val.length <= 200) {
+            setForm({ ...form, descripcionNeg: val });
+            }
+            }}
             placeholder="Describe tu historia o lo que hace especial a tu negocio..."
             multiline
             numberOfLines={6}
