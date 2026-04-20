@@ -135,6 +135,7 @@ const EditBusinessScreen = ({ user }) => {
             placeholder="Describe tu historia o lo que hace especial a tu negocio..."
             multiline
             numberOfLines={6}
+            maxLength={200}
             textAlignVertical="top"
           />
         </View>
@@ -220,6 +221,12 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 16,
     fontWeight: '700',
+  },
+  charCount: {
+    fontSize: 12,
+    color: '#6b7280',
+    textAlign: 'right',
+    marginTop: 4,
   },
 });
 

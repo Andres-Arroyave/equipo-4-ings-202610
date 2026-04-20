@@ -35,6 +35,9 @@ const VendorCard = ({ vendor, onPress }) => (
     />
     <View style={styles.vendorInfo}>
       <Text style={styles.vendorName}>{vendor.nombreNegocio}</Text>
+      <Text style={styles.vendorDescription} numberOfLines={2}>
+        {vendor.descripcionNeg || 'Deliciosos productos artesanales'}
+      </Text>
       <Text style={styles.vendorDetails}>
         {vendor.nombreCategoria || 'Sin categoría'} • {vendor.estado}
       </Text>
@@ -579,6 +582,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#111827',
+    marginBottom: 2,
+  },
+  vendorDescription: {
+    fontSize: 12,
+    color: '#6b7280',
     marginBottom: 4,
   },
   vendorDetails: {

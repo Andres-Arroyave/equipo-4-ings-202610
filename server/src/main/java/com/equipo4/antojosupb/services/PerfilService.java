@@ -6,6 +6,7 @@ import com.equipo4.antojosupb.entities.Usuario;
 import com.equipo4.antojosupb.entities.Vendedor;
 import com.equipo4.antojosupb.repository.UsuarioRepository;
 import com.equipo4.antojosupb.repository.VendedorRepository;
+import com.equipo4.antojosupb.repository.CatalogoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +36,9 @@ public class PerfilService {
 
     @Autowired
     private ClienteRepository clienteRepository;
+
+    @Autowired
+    private CatalogoRepository catalogoRepository;
 
     public Usuario getUsuario(int idUser) {
         return usuarioRepository.findById(idUser)
@@ -138,5 +142,11 @@ public class PerfilService {
         vendedor.setCategoriaVendedor(cat);
         
         vendedorRepository.save(vendedor);
+
+        catalogoRepository.findByVendedor_IdVendedor(vendedor.getIdVendedor())
+                .ifPresent(catalogo -> {
+                    catalogo.setDescripcionCatalogo(request.getDescripcionNeg());
+                    catalogoRepository.save(catalogo);
+                });
     }
 }

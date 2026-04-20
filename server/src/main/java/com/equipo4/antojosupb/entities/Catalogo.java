@@ -24,6 +24,9 @@ public class Catalogo {
     @Column(name = "FechaCreacion")
     private LocalDateTime fechaCreacion;
 
+    @Column(name = "DescripcionCatalogo", length = 200)
+    private String descripcionCatalogo;
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "IdVendedor", nullable = false, unique = true)
     private Vendedor vendedor;

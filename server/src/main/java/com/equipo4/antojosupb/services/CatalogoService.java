@@ -54,15 +54,21 @@ public class CatalogoService {
     }
 
     @Transactional
-    public CatalogoResponse actualizarCatalogo(int idUser, int idCatalogo, String nombreCatalogo) {
+    public CatalogoResponse actualizarCatalogo(int idUser, int idCatalogo, String nombreCatalogo, String descripcionCatalogo) {
         if (nombreCatalogo == null || nombreCatalogo.isBlank()) {
             throw new IllegalArgumentException("El nombre del catálogo es obligatorio.");
+        }
+        if (descripcionCatalogo != null && descripcionCatalogo.length() > 200) {
+            throw new IllegalArgumentException("La descripción no puede exceder 200 caracteres.");
         }
         Vendedor vendedor = vendedorAccesoService.requerirVendedor(idUser);
         Catalogo catalogo = catalogoRepository.findById(idCatalogo)
                 .orElseThrow(() -> new IllegalArgumentException("Catálogo no encontrado."));
         vendedorAccesoService.asegurarCatalogoPerteneceAVendedor(catalogo, vendedor);
         catalogo.setNombreCatalogo(nombreCatalogo.trim());
+        if (descripcionCatalogo != null) {
+            catalogo.setDescripcionCatalogo(descripcionCatalogo.trim());
+        }
         catalogo = catalogoRepository.save(catalogo);
         return toResponse(catalogo);
     }

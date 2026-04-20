@@ -53,7 +53,7 @@ export const validateVendorBasicForm = (businessName, ownerName, email, phone, p
 };
 
 /**
- * Valida la identidad del negocio (Edición). 
+ * Valida la identidad del negocio (Edición).
  * Se aplican las mismas reglas que en el registro.
  */
 export const validateBusinessIdentityForm = (form) => {
@@ -63,6 +63,7 @@ export const validateBusinessIdentityForm = (form) => {
     }
     if (form.nombreNegocio && !regexName.test(form.nombreNegocio)) errors.push("• Nombre de negocio inválido.");
     if (form.descripcionNeg && !regexText.test(form.descripcionNeg)) errors.push("• La presentación contiene caracteres inválidos.");
+    if (form.descripcionNeg && form.descripcionNeg.length > 200) errors.push("• La descripción no puede exceder 200 caracteres.");
     return errors;
 };
 

@@ -5,6 +5,7 @@ import com.equipo4.antojosupb.dto.VendedorDetalleResponse;
 import com.equipo4.antojosupb.dto.HorarioDiaResponse;
 import com.equipo4.antojosupb.dto.ProductoResponse;
 import com.equipo4.antojosupb.entities.Vendedor;
+import com.equipo4.antojosupb.entities.Catalogo;
 import com.equipo4.antojosupb.repository.VendedorRepository;
 import com.equipo4.antojosupb.repository.CatalogoRepository;
 import com.equipo4.antojosupb.repository.ProductosRepository;
@@ -102,6 +103,9 @@ public class VendedoresPublicosService {
                             vendedor.getWhatsAppLink(),
                             vendedor.getInstagramLink(),
                             vendedor.getDescripcionNeg(),
+                            catalogoRepository.findByVendedor_IdVendedor(idVendedor)
+                                    .map(Catalogo::getDescripcionCatalogo)
+                                    .orElse(null),
                             horarios,
                             productos
                     );

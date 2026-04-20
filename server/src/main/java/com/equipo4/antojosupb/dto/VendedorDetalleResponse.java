@@ -19,6 +19,7 @@ public class VendedorDetalleResponse {
     private String whatsAppLink;
     private String instagramLink;
     private String descripcionNeg;
+    private String descripcionCatalogo;
     private List<HorarioDiaResponse> horarios;
     private List<ProductoResponse> productos;
 }

@@ -41,7 +41,7 @@ public class CatalogoVendedorController {
             @RequestBody CatalogoUpdateRequest request) {
         try {
             CatalogoResponse actualizado = catalogoService.actualizarCatalogo(idUser, idCatalogo,
-                    request.getNombreCatalogo());
+                    request.getNombreCatalogo(), request.getDescripcionCatalogo());
             return ResponseEntity.ok(actualizado);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

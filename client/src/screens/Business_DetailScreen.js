@@ -7,7 +7,8 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
-  Dimensions
+  Dimensions,
+  Linking
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import ScreenLayout from '../Components/ScreenLayout';
@@ -73,12 +74,20 @@ export default function Business_DetailScreen({ route, navigation }) {
   const {
     nombreNegocio,
     descripcionNeg,
+    descripcionCatalogo,
     activo,
     estado,
     horarios,
     productos,
     whatsAppLink
   } = detail;
+
+  const handleWhatsApp = () => {
+    if (!whatsAppLink) return;
+    const message = encodeURIComponent('Hola! Estoy interesado en tus productos de Antojos UPB');
+    const url = `${whatsAppLink}${whatsAppLink.includes('?') ? '&' : '?'}text=${message}`;
+    Linking.openURL(url).catch(() => {});
+  };
 
   // Determinar horario de hoy
   // JS getDay() retorna 0 para Domingo, 1 para Lunes... 6 para Sábado.
@@ -118,7 +127,7 @@ export default function Business_DetailScreen({ route, navigation }) {
       <View style={styles.infoSection}>
         <Text style={styles.businessName}>{nombreNegocio}</Text>
         <Text style={styles.description}>
-          {descripcionNeg || 'Deliciosos snacks locales y postres artesanales preparados cada día con ingredientes frescos.'}
+          {descripcionCatalogo || descripcionNeg || 'Deliciosos productos artesanales'}
         </Text>
 
         <View style={styles.detailList}>
@@ -126,7 +135,6 @@ export default function Business_DetailScreen({ route, navigation }) {
             <Ionicons name="time" size={20} color="#E81123" />
             <Text style={styles.detailText}>{scheduleText}</Text>
           </View>
-          {/* Removidos dirección y reseñas según requerimiento */}
         </View>
       </View>
 
@@ -134,7 +142,15 @@ export default function Business_DetailScreen({ route, navigation }) {
       <View style={styles.productSection}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.productScroll}>
           {productos.map((item) => (
-            <View key={item.idProducto} style={styles.productCard}>
+            <TouchableOpacity 
+              key={item.idProducto} 
+              style={styles.productCard}
+              onPress={() => navigation.navigate('ProductDetail', { 
+                product: item, 
+                vendorName: nombreNegocio,
+                whatsAppLink 
+              })}
+            >
               <Image
                 source={{ uri: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&h=300&fit=crop' }}
                 style={styles.productImage}
@@ -143,14 +159,14 @@ export default function Business_DetailScreen({ route, navigation }) {
                 <Text style={styles.productName} numberOfLines={1}>{item.nombreProd}</Text>
                 <Text style={styles.productPrice}>${item.precio}</Text>
               </View>
-            </View>
+            </TouchableOpacity>
           ))}
         </ScrollView>
       </View>
 
-      {/* Floating Action Button for Contact */}
-      <TouchableOpacity style={styles.fab}>
-        <Ionicons name="call" size={30} color="#fff" />
+      {/* Floating Action Button for WhatsApp */}
+      <TouchableOpacity style={styles.fab} onPress={handleWhatsApp}>
+        <Ionicons name="logo-whatsapp" size={30} color="#fff" />
       </TouchableOpacity>
       
       <View style={styles.bottomGap} />

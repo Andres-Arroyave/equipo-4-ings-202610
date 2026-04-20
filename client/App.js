@@ -16,6 +16,7 @@ import ProfileScreen from './src/screens/ProfileScreen';
 import VendorScheduleScreen from './src/screens/VendorScheduleScreen';
 import EditContactScreen from './src/screens/EditContactScreen';
 import EditBusinessScreen from './src/screens/EditBusinessScreen';
+import ProductDetailScreen from './src/screens/ProductDetailScreen';
 import { loadSession, saveSession, clearSession } from './src/services/sessionStorage';
 
 const Stack = createNativeStackNavigator();
@@ -158,6 +159,11 @@ function LoggedInStack({ user, onLogout }) {
       <RootStack.Screen
         name="BusinessDetail"
         component={Business_DetailScreen}
+        options={{ headerShown: false }}
+      />
+      <RootStack.Screen
+        name="ProductDetail"
+        component={ProductDetailScreen}
         options={{ headerShown: false }}
       />
     </RootStack.Navigator>

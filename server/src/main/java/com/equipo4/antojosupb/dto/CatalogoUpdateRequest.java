@@ -5,4 +5,5 @@ import lombok.Data;
 @Data
 public class CatalogoUpdateRequest {
     private String nombreCatalogo;
+    private String descripcionCatalogo;
 }
