@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "VENDEDORES")
@@ -34,6 +36,15 @@ public class Vendedor {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "IdCategoriaV", nullable = false)
     private CategoriaVendedor categoriaVendedor;
+
+    // REQ009: Relación para múltiples categorías
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "VENDEDOR_CATEGORIA",
+        joinColumns = @JoinColumn(name = "IdVendedor"),
+        inverseJoinColumns = @JoinColumn(name = "IdCategoriaV")
+    )
+    private Set<CategoriaVendedor> categorias = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "IdUser", nullable = false)

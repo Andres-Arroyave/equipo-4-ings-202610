@@ -17,11 +17,12 @@ const ROW_HEIGHT = 52;
  *
  * @param {string} title - Título del campo (también se usa como encabezado del modal).
  * @param {string} placeholder - Texto cuando no hay valor.
- * @param {string | number} value - Valor seleccionado ('' si ninguno).
+ * @param {string | number | number[]} value - Valor seleccionado (array si multiple=true).
  * @param {(v: string | number) => void} onSelect
  * @param {{ value: string | number, label: string }[]} options
  * @param {string} [hintText='Toca para elegir'] - Subtexto del trigger.
  * @param {boolean} [marginBottom=true]
+ * @param {boolean} [multiple=false] - REQ009: Habilitar selección múltiple
  */
 export default function ModalSelectField({
   title,
@@ -31,21 +32,34 @@ export default function ModalSelectField({
   options,
   hintText = 'Toca para elegir',
   marginBottom = true,
+  multiple = false,
 }) {
   const insets = useSafeAreaInsets();
   const listRef = useRef(null);
   const [modalVisible, setModalVisible] = useState(false);
 
   const selectedLabel =
-    options.find(
+    (options || []).find(
       (o) => String(o.value) === String(value) && value !== '' && value != null
     )?.label ?? null;
-  const hasValue = selectedLabel != null;
-  const displayLine = hasValue ? selectedLabel : placeholder;
+
+  // REQ009: Soporte para multi-select
+  const getSelectedLabels = () => {
+    if (multiple && Array.isArray(value) && value.length > 0) {
+      return value
+        .map(v => (options || []).find(o => String(o.value) === String(v))?.label)
+        .filter(Boolean);
+    }
+    return selectedLabel ? [selectedLabel] : [];
+  };
+  
+  const selectedLabels = getSelectedLabels();
+  const hasValue = selectedLabels.length > 0;
+  const displayLine = hasValue ? selectedLabels.join(', ') : placeholder;
 
   const selectedIndex = Math.max(
     0,
-    options.findIndex((o) => String(o.value) === String(value))
+    (options || []).findIndex((o) => String(o.value) === String(value))
   );
 
   const win = Dimensions.get('window');
@@ -59,7 +73,7 @@ export default function ModalSelectField({
   );
 
   useEffect(() => {
-    if (!modalVisible || options.length === 0) return;
+    if (!modalVisible || (options || []).length === 0) return;
     const idx = selectedIndex >= 0 ? selectedIndex : 0;
     const id = requestAnimationFrame(() => {
       try {
@@ -143,19 +157,30 @@ export default function ModalSelectField({
                 });
               }}
               renderItem={({ item }) => {
-                const selected = String(item.value) === String(value);
+                // REQ009: Soporte para múltiples valores
+                const isSelected = multiple 
+                  ? (Array.isArray(value) && value.includes(item.value))
+                  : String(item.value) === String(value);
                 return (
                   <Pressable
                     onPress={() => {
                       onSelect(item.value);
-                      setModalVisible(false);
+                      // En modo multiple, no cerramos el modal automáticamente
+                      if (!multiple) {
+                        setModalVisible(false);
+                      }
                     }}
-                    style={[styles.modalRow, selected && styles.modalRowSelected]}
+                    style={[styles.modalRow, isSelected && styles.modalRowSelected]}
                   >
+                    {multiple && (
+                      <Text style={[styles.checkbox, isSelected && styles.checkboxSelected]}>
+                        {isSelected ? '☑' : '☐'}
+                      </Text>
+                    )}
                     <Text
                       style={[
                         styles.modalRowText,
-                        selected && styles.modalRowTextSelected,
+                        isSelected && styles.modalRowTextSelected,
                       ]}
                     >
                       {item.label}

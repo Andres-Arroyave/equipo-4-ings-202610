@@ -78,7 +78,10 @@ export default function Business_DetailScreen({ route, navigation }) {
     estado,
     horarios,
     productos,
-    whatsAppLink
+    whatsAppLink,
+    // REQ009: Categorías del vendedor
+    categoriasNombres = [],
+    categoriasIds = []
   } = detail;
 
   const handleWhatsAppPress = async () => {
@@ -165,6 +168,18 @@ export default function Business_DetailScreen({ route, navigation }) {
 
       <View style={styles.infoSection}>
         <Text style={styles.businessName}>{nombreNegocio}</Text>
+        
+        {/* REQ009: Categorías del vendedor - mostrar nombres reales */}
+        {(Array.isArray(categoriasNombres) && categoriasNombres.length > 0) && (
+          <View style={styles.categoriesContainer}>
+            {categoriasNombres.map((catName, index) => (
+                <View key={index} style={styles.categoryBadge}>
+                  <Text style={styles.categoryBadgeText}>{catName}</Text>
+                </View>
+            ))}
+          </View>
+        )}
+
         <Text style={styles.description}>
           {descripcionNeg || 'Deliciosos snacks locales y postres artesanales preparados cada día con ingredientes frescos.'}
         </Text>
@@ -427,5 +442,26 @@ const styles = StyleSheet.create({
   },
   scheduleDayTimeOpen: {
     color: '#22C55E',
+  },
+  // REQ009: Estilos para categorías
+  categoriesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 12,
+  },
+  categoryBadge: {
+    backgroundColor: '#ecfdf5',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginRight: 8,
+    marginBottom: 4,
+    borderWidth: 1,
+    borderColor: '#a7f3d0',
+  },
+  categoryBadgeText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#064e3b',
   },
 });

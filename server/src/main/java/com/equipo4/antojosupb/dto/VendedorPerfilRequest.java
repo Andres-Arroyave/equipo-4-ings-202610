@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 public class VendedorPerfilRequest {
@@ -20,6 +22,9 @@ public class VendedorPerfilRequest {
 
     @NotNull(message = "La categoría es obligatoria")
     private Integer idCategoriaV;
+
+    // REQ009: Múltiples categorías
+    private List<Integer> categoriasIds = new ArrayList<>();
 
     @Pattern(regexp = "^(?:https?://)?(?:www\\.)?(?:wa\\.me/|api\\.whatsapp\\.com/send/?\\?phone=)(\\+?\\d{7,15})(?:[&?].*)?$", message = "El enlace de WhatsApp no es válido")
     private String whatsAppLink;

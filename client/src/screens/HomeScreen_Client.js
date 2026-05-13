@@ -27,21 +27,28 @@ const CATEGORIES = [
 
 // Datos reales suministrados por el backend
 
-const VendorCard = ({ vendor, onPress }) => (
-  <TouchableOpacity style={styles.vendorCard} onPress={onPress}>
-    <Image
-      source={{ uri: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200&h=200&fit=crop' }}
-      style={styles.vendorImage}
-    />
-    <View style={styles.vendorInfo}>
-      <Text style={styles.vendorName}>{vendor.nombreNegocio}</Text>
-      <Text style={styles.vendorDetails}>
-        {vendor.nombreCategoria || 'Sin categoría'} • {vendor.estado}
-      </Text>
-    </View>
-    <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
-  </TouchableOpacity>
-);
+const VendorCard = ({ vendor, onPress }) => {
+  // REQ009: Usar categoriasNombres si existe, fallback a legacy
+  const categoriasTexto = Array.isArray(vendor.categoriasNombres) && vendor.categoriasNombres.length > 0
+    ? vendor.categoriasNombres.join(' • ')
+    : (vendor.nombreCategoria || 'Sin categoría');
+  
+  return (
+    <TouchableOpacity style={styles.vendorCard} onPress={onPress}>
+      <Image
+        source={{ uri: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200&h=200&fit=crop' }}
+        style={styles.vendorImage}
+      />
+      <View style={styles.vendorInfo}>
+        <Text style={styles.vendorName}>{vendor.nombreNegocio}</Text>
+        <Text style={styles.vendorDetails} numberOfLines={1}>
+          {categoriasTexto} • {vendor.estado}
+        </Text>
+      </View>
+      <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
+    </TouchableOpacity>
+  );
+};
 
 const CategoryCard = ({ category }) => (
   <View style={[styles.categoryCard, { backgroundColor: category.bg }]}>
@@ -229,11 +236,18 @@ const HomeScreen_Client = ({ navigation }) => {
     
     if (selectedCategorias.length > 0) {
       result = result.filter((v) => {
-        const categoriaNombre = v.nombreCategoria?.toLowerCase() || '';
-        return categorias.some((c) => 
+        // REQ009: Buscar en categorías múltiples Y legacy
+        const categoriasIds = v.categoriasIds || [];
+        const nombreCategoria = v.nombreCategoria?.toLowerCase() || '';
+        
+        // Verificar si alguna categoría seleccionada coincide con IDs o nombre legacy
+        const matchById = selectedCategorias.some(catId => categoriasIds.includes(catId));
+        const matchByName = categorias.some((c) => 
           selectedCategorias.includes(c.idCategoriaV) && 
-          categoriaNombre === c.nombreCategoria.toLowerCase()
+          nombreCategoria === c.nombreCategoria.toLowerCase()
         );
+        
+        return matchById || matchByName;
       });
     }
     

@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.regex.Pattern;
 import java.util.Optional;
-
+import java.util.Set;
+import java.util.HashSet;
+import java.util.List;
 import java.time.LocalDateTime;
 
 @Service
@@ -209,12 +211,34 @@ public class RegistroService {
         vendedor.setUsuario(usuarioGuardado);
         vendedor.setActivo(false);
 
-        if (request.getIdCategoriaV() != null) {
+        // REQ009: Debug logging
+        System.out.println("REGISTER - idCategoriaV: " + request.getIdCategoriaV());
+        System.out.println("REGISTER - categoriasIds: " + request.getCategoriasIds());
+
+        // REQ009: Aceptar single o multiple categorías
+        boolean hasSingle = request.getIdCategoriaV() != null;
+        boolean hasMultiple = request.getCategoriasIds() != null && !request.getCategoriasIds().isEmpty();
+        
+        if (!hasSingle && !hasMultiple) {
+            throw new IllegalArgumentException("La categoría del vendedor es requerida.");
+        }
+
+        // Guardar categoría única (legacy)
+        if (hasSingle) {
             CategoriaVendedor categoria = categoriaVendedorRepository.findById(request.getIdCategoriaV())
                     .orElseThrow(() -> new IllegalArgumentException("Categoría no encontrada."));
             vendedor.setCategoriaVendedor(categoria);
-        } else {
-            throw new IllegalArgumentException("La categoría del vendedor es requerida.");
+        }
+
+        // REQ009: Guardar múltiples categorías
+        if (hasMultiple) {
+            Set<CategoriaVendedor> cats = new HashSet<>();
+            for (Integer catId : request.getCategoriasIds()) {
+                CategoriaVendedor c = categoriaVendedorRepository.findById(catId)
+                        .orElseThrow(() -> new IllegalArgumentException("Categoría no encontrada: " + catId));
+                cats.add(c);
+            }
+            vendedor.getCategorias().addAll(cats);
         }
 
         vendedorRepository.save(vendedor);

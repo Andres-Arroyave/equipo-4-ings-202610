@@ -12,8 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.equipo4.antojosupb.repository.CategoriaVendedorRepository;
 import com.equipo4.antojosupb.repository.ClienteRepository;
 import com.equipo4.antojosupb.entities.Cliente;
+import com.equipo4.antojosupb.entities.CategoriaVendedor;
 import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.List;
 
 @Service
 public class PerfilService {
@@ -112,10 +116,13 @@ public class PerfilService {
         if (request.getDescripcionNeg() == null || request.getDescripcionNeg().trim().isEmpty()) {
             throw new IllegalArgumentException("La descripción es obligatoria");
         }
-        if (request.getDescripcionNeg().length() > 500 || !DESC_PATTERN.matcher(request.getDescripcionNeg()).matches()) {
-            throw new IllegalArgumentException("La descripción contiene caracteres no permitidos o es muy larga");
+        if (request.getDescripcionNeg().length() > 200 || !DESC_PATTERN.matcher(request.getDescripcionNeg()).matches()) {
+            throw new IllegalArgumentException("La descripción contiene caracteres no permitidos o supera los 200 caracteres");
         }
-        if (request.getIdCategoriaV() == null) {
+        // REQ009: Al menos una categoría (single o multiple)
+        boolean hasSingle = request.getIdCategoriaV() != null;
+        boolean hasMultiple = request.getCategoriasIds() != null && !request.getCategoriasIds().isEmpty();
+        if (!hasSingle && !hasMultiple) {
             throw new IllegalArgumentException("La categoría es obligatoria");
         }
 
@@ -128,15 +135,25 @@ public class PerfilService {
             }
         }
         
-        vendedor.setNombreNegocio(request.getNombreNegocio());
+vendedor.setNombreNegocio(request.getNombreNegocio());
         vendedor.setDescripcionNeg(request.getDescripcionNeg());
 
-
-        
-        com.equipo4.antojosupb.entities.CategoriaVendedor cat = categoriaVendedorRepository.findById(request.getIdCategoriaV())
+        CategoriaVendedor cat = categoriaVendedorRepository.findById(request.getIdCategoriaV())
                 .orElseThrow(() -> new IllegalArgumentException("Categoría no encontrada"));
         vendedor.setCategoriaVendedor(cat);
-        
+
+        // REQ009: Guardar múltiples categorías
+        if (request.getCategoriasIds() != null && !request.getCategoriasIds().isEmpty()) {
+            Set<CategoriaVendedor> cats = new HashSet<>();
+            for (Integer catId : request.getCategoriasIds()) {
+                CategoriaVendedor c = categoriaVendedorRepository.findById(catId)
+                        .orElseThrow(() -> new IllegalArgumentException("Categoría no encontrada: " + catId));
+                cats.add(c);
+            }
+            vendedor.getCategorias().clear();
+            vendedor.getCategorias().addAll(cats);
+        }
+
         vendedorRepository.save(vendedor);
     }
 }

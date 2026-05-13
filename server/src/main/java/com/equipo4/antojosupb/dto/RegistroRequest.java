@@ -1,6 +1,8 @@
 package com.equipo4.antojosupb.dto;
 
 import lombok.Data;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 public class RegistroRequest {
@@ -18,4 +20,7 @@ public class RegistroRequest {
     private String whatsAppLink;
     private String instagramLink;
     private Integer idCategoriaV;
+    
+    // REQ009: Múltiples categorías
+    private List<Integer> categoriasIds = new ArrayList<>();
 }

@@ -5,6 +5,7 @@ import com.equipo4.antojosupb.dto.VendedorDetalleResponse;
 import com.equipo4.antojosupb.dto.HorarioDiaResponse;
 import com.equipo4.antojosupb.dto.ProductoResponse;
 import com.equipo4.antojosupb.entities.Vendedor;
+import com.equipo4.antojosupb.entities.CategoriaVendedor;
 import com.equipo4.antojosupb.repository.VendedorRepository;
 import com.equipo4.antojosupb.repository.CatalogoRepository;
 import com.equipo4.antojosupb.repository.ProductosRepository;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
 
 @Service
 public class VendedoresPublicosService {
@@ -44,10 +46,22 @@ public class VendedoresPublicosService {
     }
 
     private static VendedorEstadoResponse toResponse(Vendedor vendedor, boolean activo) {
+        // REQ009: Combinar categorías nuevas + legacy
+        List<CategoriaVendedor> cats = new ArrayList<>(vendedor.getCategorias());
+        if (vendedor.getCategoriaVendedor() != null && 
+            cats.stream().noneMatch(c -> c.getIdCategoriaV() == vendedor.getCategoriaVendedor().getIdCategoriaV())) {
+            cats.add(vendedor.getCategoriaVendedor());
+        }
+        List<String> catsNombres = cats.stream().map(CategoriaVendedor::getNombreCategoria).collect(Collectors.toList());
+        List<Integer> catsIds = cats.stream().map(CategoriaVendedor::getIdCategoriaV).collect(Collectors.toList());
+        
         return new VendedorEstadoResponse(
                 vendedor.getIdVendedor(),
                 vendedor.getNombreNegocio(),
                 vendedor.getCategoriaVendedor() != null ? vendedor.getCategoriaVendedor().getNombreCategoria() : null,
+                // REQ009: Agregar categorías múltiples
+                catsNombres,
+                catsIds,
                 activo,
                 activo ? "Abierto" : "Cerrado",
                 activo ? "blanco-hueso" : "gris",
@@ -92,10 +106,28 @@ public class VendedoresPublicosService {
                                     .collect(Collectors.toList()))
                             .orElse(Collections.emptyList());
 
+                    // REQ009: Obtener múltiples categorías (combinar nuevas + legacy)
+                    List<CategoriaVendedor> cats = new ArrayList<>(vendedor.getCategorias());
+                    // Agregar categoría legacy si existe y no está duplicada
+                    if (vendedor.getCategoriaVendedor() != null && 
+                        cats.stream().noneMatch(c -> c.getIdCategoriaV() == vendedor.getCategoriaVendedor().getIdCategoriaV())) {
+                        cats.add(vendedor.getCategoriaVendedor());
+                    }
+                    
+                    List<String> categoriasNombres = cats.stream()
+                            .map(CategoriaVendedor::getNombreCategoria)
+                            .collect(Collectors.toList());
+                    List<Integer> categoriasIds = cats.stream()
+                            .map(CategoriaVendedor::getIdCategoriaV)
+                            .collect(Collectors.toList());
+
                     return new VendedorDetalleResponse(
                             vendedor.getIdVendedor(),
                             vendedor.getNombreNegocio(),
                             vendedor.getCategoriaVendedor() != null ? vendedor.getCategoriaVendedor().getNombreCategoria() : null,
+                            // REQ009: Agregar listas de categorías
+                            categoriasNombres,
+                            categoriasIds,
                             vendedor.isActivo(),
                             vendedor.isActivo() ? "Abierto" : "Cerrado",
                             vendedor.isActivo() ? "blanco-hueso" : "gris",

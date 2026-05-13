@@ -26,7 +26,7 @@ const EditBusinessScreen = ({ user }) => {
   const [form, setForm] = useState({
     nombreNegocio: '',
     descripcionNeg: '',
-    idCategoriaV: null
+    categoriasIds: []
   });
 
   useEffect(() => {
@@ -46,7 +46,14 @@ const EditBusinessScreen = ({ user }) => {
       setForm({
         nombreNegocio: vendedorData.nombreNegocio || '',
         descripcionNeg: vendedorData.descripcionNeg || '',
-        idCategoriaV: vendedorData.categoriaVendedor?.idCategoriaV || null
+        // REQ009: Cargar múltiples categorías (desde nueva relación o legacy)
+        categoriasIds: Array.isArray(vendedorData?.categoriasIds)
+          ? vendedorData.categoriasIds
+          : Array.isArray(vendedorData?.categorias)
+            ? vendedorData.categorias.map(c => c?.idCategoriaV).filter(Boolean)
+            : vendedorData?.categoriaVendedor?.idCategoriaV
+              ? [vendedorData.categoriaVendedor.idCategoriaV]
+              : []
       });
     } catch (error) {
       showAlert('Error', 'No se pudo cargar la información');
@@ -73,7 +80,15 @@ const EditBusinessScreen = ({ user }) => {
 
     setSaving(true);
     try {
-      await actualizarIdentidadNegocio(user.idUser, form);
+      // REQ009: Enviar both idCategoriaV (compatibilidad) y categoriasIds (nuevo)
+      const categoriasIds = Array.isArray(form?.categoriasIds) ? form.categoriasIds : [];
+      const payload = {
+        nombreNegocio: form.nombreNegocio,
+        descripcionNeg: form.descripcionNeg,
+        idCategoriaV: categoriasIds.length > 0 ? categoriasIds[0] : null,
+        categoriasIds: categoriasIds
+      };
+      await actualizarIdentidadNegocio(user.idUser, payload);
       showAlert('Éxito', 'Identidad del negocio actualizada correctamente', () => {
         navigation.goBack();
       });
@@ -117,12 +132,22 @@ const EditBusinessScreen = ({ user }) => {
         <View style={styles.formGroup}>
           <ModalSelectField
             title="Categoría del negocio"
-            placeholder="Selecciona una categoría..."
-            hintText="Toca para elegir categoría"
-            value={form.idCategoriaV}
-            onSelect={(val) => setForm({ ...form, idCategoriaV: val })}
+            placeholder="Selecciona una o más categorías..."
+            hintText="Toca para elegir categorías"
+            value={form.categoriasIds}
+            onSelect={(val) => {
+              // REQ009: Toggle para multi-select
+              const current = form.categoriasIds;
+              const idx = current.indexOf(val);
+              if (idx >= 0) {
+                setForm({ ...form, categoriasIds: current.filter(id => id !== val) });
+              } else {
+                setForm({ ...form, categoriasIds: [...current, val] });
+              }
+            }}
             options={categories}
             marginBottom={true}
+            multiple={true}
           />
         </View>
 

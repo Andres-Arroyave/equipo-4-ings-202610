@@ -58,7 +58,10 @@ export const validateVendorBasicForm = (businessName, ownerName, email, phone, p
  */
 export const validateBusinessIdentityForm = (form) => {
     let errors = [];
-    if (!form.nombreNegocio?.trim() || !form.descripcionNeg?.trim() || !form.idCategoriaV) {
+    // REQ009: Aceptar idCategoriaV (single) O categoriasIds (multiple)
+    const hasSingle = form.idCategoriaV != null;
+    const hasMultiple = form.categoriasIds && form.categoriasIds.length > 0;
+    if (!form.nombreNegocio?.trim() || !form.descripcionNeg?.trim() || (!hasSingle && !hasMultiple)) {
         errors.push(ERRORS.REQUIRED);
     }
     if (form.nombreNegocio && !regexName.test(form.nombreNegocio)) errors.push("• Nombre de negocio inválido.");

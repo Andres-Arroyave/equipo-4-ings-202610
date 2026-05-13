@@ -13,6 +13,9 @@ public class VendedorDetalleResponse {
     private int idVendedor;
     private String nombreNegocio;
     private String nombreCategoria;
+    // REQ009: Múltiples categorías
+    private List<String> categoriasNombres;
+    private List<Integer> categoriasIds;
     private boolean activo;
     private String estado;
     private String colorTarjeta;

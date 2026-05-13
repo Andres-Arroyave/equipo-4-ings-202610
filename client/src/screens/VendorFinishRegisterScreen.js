@@ -14,7 +14,7 @@ const VendorFinishRegisterScreen = ({ route, navigation }) => {
     const [description, setDescription] = useState('');
     const [whatsappLink, setWhatsappLink] = useState('');
     const [instagramLink, setInstagramLink] = useState('');
-    const [categoryId, setCategoryId] = useState('');
+    const [categoriasIds, setCategoriasIds] = useState([]);
     const [categories, setCategories] = useState([]);
     const [loadingCats, setLoadingCats] = useState(true);
 
@@ -53,16 +53,28 @@ const VendorFinishRegisterScreen = ({ route, navigation }) => {
         const ds = description.trim();
         const wl = whatsappLink.trim();
         const il = instagramLink.trim();
+        
+        // REQ009: Validar al menos una categoría
+        const cats = Array.isArray(categoriasIds) ? categoriasIds : [];
+        const hasAny = cats.length > 0;
+        
+        if (!hasAny) {
+            showAlert("Campos incorrectos", "• La categoría es obligatoria.");
+            return;
+        }
 
-        const errors = validateVendorDetailsForm(ds, categoryId, wl, il);
+        // Validar con la primera categoría para compatibilidad
+        const catForValidation = cats[0] || null;
+        const errors = validateVendorDetailsForm(ds, catForValidation, wl, il);
 
         if (errors.length > 0) {
             showAlert("Campos incorrectos", errors.join("\n"));
             return;
         }
 
-
         try {
+            console.log("REGISTER - categoriasIds:", categoriasIds);
+
             const payload = {
                 nombreNegocio: initialData.b,
                 nombrePropietario: initialData.o,
@@ -70,10 +82,14 @@ const VendorFinishRegisterScreen = ({ route, navigation }) => {
                 contrasena: initialData.p,
                 telefono: initialData.t,
                 descripcionNeg: ds,
-                idCategoriaV: categoryId,
+                // REQ009: Enviar ambos formatos
+                idCategoriaV: cats.length > 0 ? cats[0] : null,
+                categoriasIds: cats,
                 whatsAppLink: wl,
                 instagramLink: il
             };
+
+            console.log("REGISTER PAYLOAD", JSON.stringify(payload, null, 2));
 
             await registerVendor(payload);
 
@@ -115,12 +131,22 @@ const VendorFinishRegisterScreen = ({ route, navigation }) => {
                         ) : (
                             <ModalSelectField
                                 title="Categoría del negocio"
-                                placeholder="Selecciona una categoría..."
-                                hintText="Toca para elegir categoría"
-                                value={categoryId}
-                                onSelect={setCategoryId}
+                                placeholder="Selecciona una o más categorías..."
+                                hintText="Toca para elegir categorías"
+                                value={categoriasIds}
+                                onSelect={(val) => {
+                                    // REQ009: Toggle para multi-select
+                                    const current = Array.isArray(categoriasIds) ? categoriasIds : [];
+                                    const idx = current.indexOf(val);
+                                    if (idx >= 0) {
+                                        setCategoriasIds(current.filter(id => id !== val));
+                                    } else {
+                                        setCategoriasIds([...current, val]);
+                                    }
+                                }}
                                 options={categoryOptions}
                                 marginBottom={false}
+                                multiple={true}
                             />
                         )}
                     </View>
