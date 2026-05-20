@@ -1,0 +1,14 @@
+{
+  "name": "server-smoke-tests",
+  "version": "1.0.0",
+  "description": "Smoke tests for Antojos UPB Backend",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --runInBand --detectOpenHandles"
+  },
+  "dependencies": {
+    "axios": "^1.6.8",
+    "jest": "^29.7.0",
+    "tree-kill": "^1.2.2"
+  }
+}
